@@ -1,0 +1,13 @@
+describe('Test example', function()
+  it('Test can access vim namespace', function()
+    assert.are.same(vim.trim('  a '), 'a')
+  end)
+end)
+
+describe('Change string case methods', function()
+  describe('Uppercase', function()
+    it('should transform the string', function()
+      assert.are.same('a', 'a')
+    end)
+  end)
+end)
