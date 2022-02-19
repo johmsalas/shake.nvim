@@ -1,5 +1,6 @@
-local casing = {}
 local utils = require('utils')
+
+local M = {}
 
 local codes = {
   a = string.byte('a'),
@@ -7,17 +8,18 @@ local codes = {
   A = string.byte('A'),
   Z = string.byte('Z'),
 }
+
 local toTitle = function(str)
   return string.sub(str, 1, 1):upper() .. string.sub(str, 2):lower()
 end
 
-function casing.to_pascal_case(str)
-  local parts = vim.split(casing.to_dash_case(str), '-')
+function M.to_pascal_case(str)
+  local parts = vim.split(M.to_dash_case(str), '-')
   return table.concat(utils.map(parts, toTitle), "")
 end
 
-function casing.to_camel_case(str)
-  local parts = vim.split(casing.to_dash_case(str), '-')
+function M.to_camel_case(str)
+  local parts = vim.split(M.to_dash_case(str), '-')
   if #parts == 1 then return parts[1]:lower() end
   if #parts > 1 then
     return parts[1]:lower() ..
@@ -32,42 +34,42 @@ function casing.to_camel_case(str)
   return ''
 end
 
-function casing.to_phrase_case(str)
-  local lower = casing.to_dash_case(str):lower()
+function M.to_phrase_case(str)
+  local lower = M.to_dash_case(str):lower()
   lower = lower:gsub("-", " ")
   return lower:sub(1, 1):upper() .. lower:sub(2, #lower)
 end
 
-function casing.to_lower_case(str)
+function M.to_lower_case(str)
   return str:lower()
 end
 
-function casing.to_upper_case(str)
+function M.to_upper_case(str)
   return str:upper()
 end
 
-function casing.to_title_case(str)
-  local parts = vim.split(casing.to_dash_case(str), '-')
+function M.to_title_case(str)
+  local parts = vim.split(M.to_dash_case(str), '-')
   return table.concat(utils.map(parts, toTitle), " ")
 end
 
-function casing.to_snake_case(str)
-  local parts = vim.split(casing.to_dash_case(str), '-')
+function M.to_snake_case(str)
+  local parts = vim.split(M.to_dash_case(str), '-')
   return table.concat(parts, "_")
 end
 
-function casing.to_dot_case(str)
-  local parts = vim.split(casing.to_dash_case(str), '-')
+function M.to_dot_case(str)
+  local parts = vim.split(M.to_dash_case(str), '-')
   return table.concat(parts, ".")
 end
 
-function casing.to_path_case(str)
-  local parts = vim.split(casing.to_dash_case(str), '-')
+function M.to_path_case(str)
+  local parts = vim.split(M.to_dash_case(str), '-')
   return table.concat(parts, "/")
 end
 
-function casing.to_constant_case(str)
-  local parts = vim.split(casing.to_dash_case(str), '-')
+function M.to_constant_case(str)
+  local parts = vim.split(M.to_dash_case(str), '-')
   return table.concat(utils.map(parts, string.upper), "_")
 end
 
@@ -96,12 +98,12 @@ function Smart_analysis(str)
   return has_lower_case_characters, has_upper_case_characters, separators
 end
 
-function casing.to_dash_case(str)
+function M.to_dash_case(str)
   local previous = nil
   local items = {}
 
   local ends_with_space = string.sub(str, -1) == " "
-  local has_lower_case_characters, has_upper_case_characters, separators = Smart_analysis(str)
+  local has_lower_case_characters, _, separators = Smart_analysis(str)
 
   for current in str:gmatch"." do
     local previous_code = previous and string.byte(previous) or 0
@@ -117,10 +119,6 @@ function casing.to_dash_case(str)
       is_current_upper and not has_lower_case_characters and #separators > 0
     )
 
-    -- print(vim.inspect(str))
-    -- print(vim.inspect(separators))
-    -- print(current_can_continue_word)
-
     if previous == nil or (
       is_previous_alphabet and not current_can_continue_word
     ) then
@@ -134,8 +132,11 @@ function casing.to_dash_case(str)
     previous = current
   end
 
-  local result = table.concat(utils.map({ unpack(items, 1, ends_with_space and (#items - 1) or #items) }, string.lower), "-") .. (ends_with_space and ' ' or '')
+  local result = table.concat(utils.map(
+    { unpack(items, 1, ends_with_space and (#items - 1) or #items) },
+    string.lower
+  ), "-") .. (ends_with_space and ' ' or '')
   return result
 end
 
-return casing
+return M

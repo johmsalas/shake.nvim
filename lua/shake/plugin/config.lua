@@ -7,6 +7,7 @@ local function with_defaults(options)
     operator_prefix = options.operator_prefix or nil,
     lsp_operator_prefix = options.lsp_operator_prefix or nil,
     search_replace_prefix = options.search_replace_prefix or nil,
+    conversions = options.conversions or {},
   }
 end
 

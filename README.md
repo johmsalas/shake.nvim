@@ -1,17 +1,30 @@
-# nvim-lua-string-case
+# Plug and change
+
+- WORK IN PROGRESS: Not ready to be used by the general public
+
+This project allows to convert Lua functions to vim operators to easily change pieces of texts. For example, given a function that converts to camelCase, with this plugin, it can be a vim operator that could be applied on objects (like aw, p, i"), undone, repeated, it could even be used on macros 
+
+This project also provides a set of basic `changes`:
+ - String cass (see available string case conversions)
 
 ## Features
 
-### motion
+### Operator
 
-A vim motion to change string case. Go from any text case (like camelCase) to any other in the supported list (like CONSTANT_CASE) using a regular text motion
+A vim operator to change strings, supports:
+
+- Change provided object
+- Change whole line
+- Change until end of line
+- Change word under cursor using LSP
 
 ### Bulk replacement
 
-Given two pieces of text A and B, it searches for all of A variants (in the different string cases), and replaces the text using B. It transforms and uses B, according to the target string case
+Given two pieces of text A and B, it searches for all of A variants (in different string cases or custom functions), and replaces the text using B. It transforms and uses B, according to the target transformation. String cases are prioritized over custom Lua functions
 
+## Available string changes
 
-## Available string case conversions
+### String case conversions
 
 | Trigger |      Case     | Example     |
 |---------|---------------|-------------|
@@ -52,7 +65,7 @@ use {
 
 ### Motion
 
-The formula is `cr{case trigger}{object}`. For instance, to convert the following 3 words to camel case, use `crc3w`. To repeat press `.`.
+The formula is `cr{prefix}{object}`. For instance, to convert the following 3 words to camel case, use `crc3w`. To repeat press `.`.
 
 #### LSP
 
@@ -133,17 +146,17 @@ vim.api.nvim_set_keymap("n", "cRs", "<cmd>lua require('stringcase').lsp_rename('
 * [x] Add instructions for setup
 * [x] Provide triggering via commands
 * [ ] Bulk replacement: LSP support
-* [ ] Bulk replacement: Apply only on visual selection
+* [x] Bulk replacement: Apply only on visual selection
 * [ ] Bulk replacement: Hightlight replacable strings
 * [ ] Bulk replacement: Interactive mode
-* [ ] Add support for custom key mapping
-* [ ] Add support for custom prefix on key mapping
+* [x] Add support for custom key mapping
+* [x] Add support for custom prefix on key mapping
 * [ ] Support Telescope
 * [ ] Verify format of prefixes
 
 ### Related projects
 
-Inspired by [substitute.lua](https://github.com/gbprod/substitute.nvim). Honestly, Substitute code was copy/pasted and modified to adapt its functionality
+Inspired by [substitute.lua](https://github.com/gbprod/substitute.nvim)
 
 Alternatives
 [vim-abolish by tpope](https://github.com/tpope/vim-abolish)
