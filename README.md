@@ -139,7 +139,22 @@ vim.api.nvim_set_keymap("n", "cRs", "<cmd>lua require('stringcase').lsp_rename('
 * Written in LUA. I wanted to add the features to tpope's vim-abolish, but vim script represents one more thing to learn, that only works inside vim ecosystem
 * LSP support. In programming, usually text is corelated. When a text changes, it should also change in definitions and references
 
-## Project Status
+## Contribution
+
+### Development
+
+#### Useful commands
+
+Start vim and the module for testing
+`nvim --cmd "set rtp+=/path/to/the/module"`
+
+To remove the cache of the module
+`:lua package.loaded['shake'] = nil`
+
+Run the tests
+nvim --headless --noplugin -u tests/minimal.vim -c "PlenaryBustedDirectory tests/ {minimal_init = 'tests/minimal.vim'}"
+
+### Project Status
 
 * [WIP] Beta testing: Currently checking if the triggers make sense
 * [WIP] Beta testing: Getting feedback if the string case algorithm work as expected

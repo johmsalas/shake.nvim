@@ -1,4 +1,4 @@
-local stringcase = require("stringcase")
+local stringcase = require("shake.plugin.plugin")
 
 local function get_buf_lines()
   local result = vim.api.nvim_buf_get_lines(0, 0, vim.api.nvim_buf_line_count(0), false)

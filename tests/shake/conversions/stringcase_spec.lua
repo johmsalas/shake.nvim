@@ -1,4 +1,4 @@
-local casing = require("casing")
+local casing = require("shake.conversions.stringcase")
 
 local UNFORMATTED_STRING = "lorem ipsum dolor sit amet"
 local UPPER_STRING = "LOREM IPSUM DOLOR SIT AMET"
