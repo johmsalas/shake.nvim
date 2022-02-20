@@ -1,4 +1,4 @@
-local utils = require('utils')
+local utils = require('shake.shared.utils')
 
 local M = {}
 
