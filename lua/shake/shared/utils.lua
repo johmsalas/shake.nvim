@@ -27,6 +27,13 @@ function utils.nvim_buf_get_text(buffer, start_row, start_col, end_row, end_col)
   return lines
 end
 
+function utils.create_wrapped_method(desc, method)
+  return {
+    desc = desc,
+    apply = method
+  }
+end
+
 function utils.get_default_register()
   local clipboardFlags = vim.split(vim.api.nvim_get_option("clipboard"), ",")
 

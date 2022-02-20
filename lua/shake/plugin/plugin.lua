@@ -1,22 +1,18 @@
-local utils = require("utils")
-local constants = require("constants")
-local conversion = require("conversion")
-local config = require("config")
-local types = require("types")
+local utils = require("shake.shared.utils")
+local constants = require("shake.shared.constants")
+local conversion = require("shake.plugin.conversion")
+local config = require("shake.plugin.config")
 
 local M = {}
 
 M.state = {
   register = nil,
-  methods_by_key = {},
+  methods_by_desc = {},
   methods_by_command = {},
   change_type = nil,
   current_method = nil, -- Since curried vim func operators are not yet supported
   match = nil,
 }
-
-local plugin_name = 'Shane.nvim'
-local namespace = 'stringcase'
 
 function M.setup(options)
   M.config = config.setup(options)
@@ -24,31 +20,29 @@ function M.setup(options)
   local conversions = M.config.conversions
 
   for key, method in ipairs(conversions) do
-    M.state.methods_by_key[key] = method
+    M.state.methods_by_desc[key] = method
   end
 end
 
-function M.register_keybindings(key, keybindings)
-  if ~M[key] then
-    print(plugin_name + ': method ' + key + ' not registered')
-    return
-  end
-
+function M.register_keybindings(method_table, keybindings)
+  -- TODO: validate method_table
+  print(vim.inspect(method_table))
+  M.state.methods_by_desc[method_table.desc] = method_table
   for _, feature in ipairs({ 'line', 'eol', 'visual', 'operator', 'lsp_rename' }) do
     if keybindings[feature] ~= nil then
       vim.api.nvim_set_keymap(
         "n",
         keybindings[feature],
-        "<cmd>lua require('" .. namespace .. "')." .. feature .. "('" .. key .. "')<cr>",
+        "<cmd>lua require('" .. constants.namespace .. "')." .. feature .. "('" .. method_table.desc .. "')<cr>",
         { noremap = true }
       )
     end
   end
 end
 
-function M.reg_keys(method, keybindings)
+function M.register_keys(method_table, keybindings)
   -- Sugar syntax
-  M.register_keybindings(method, {
+  M.register_keybindings(method_table, {
     line = keybindings[1],
     eol = keybindings[2],
     visual = keybindings[3],
@@ -62,7 +56,7 @@ function M.register_replace_command(command, method_keys)
 
   for _, method in ipairs(method_keys) do
     M.state.methods_by_command[command] = {}
-    if M.state.methods_by_key[method] then
+    if M.state.methods_by_desc[method] then
       print(plugin_name + ': method ' + method + ' not registered')
     else
       table.insert(M.state.methods_by_command[command], method)
@@ -70,7 +64,7 @@ function M.register_replace_command(command, method_keys)
   end
 
   vim.cmd(
-    "command! -nargs=1 -bang -bar -range=0 " .. command .. " :lua require('" .. namespace .. "').dispatcher('" .. command .. "', <q-args>)"
+    "command! -nargs=1 -bang -bar -range=0 " .. command .. " :lua require('" .. constants.namespace .. "').dispatcher('" .. command .. "', <q-args>)"
   )
 end
 
@@ -98,22 +92,23 @@ end
 function M.operator(method_key)
   M.state.register = vim.v.register
   M.state.current_method = method_key
-  vim.o.operatorfunc = "v:lua.require'" .. namespace .. "'.operator_callback"
+  vim.o.operatorfunc = "v:lua.require'" .. constants.namespace .. "'.operator_callback"
   vim.api.nvim_feedkeys("g@", "i", false)
 end
 
 function M.operator_callback(vmode)
   local region = utils.get_region(vmode)
+  local method = M.state.methods_by_desc[M.state.current_method].apply
 
-  if M.state.change_type == types.change_type.LSP_RENAME then
-    conversion.do_lsp_rename(M.state.register)
+  if M.state.change_type == constants.change_type.LSP_RENAME then
+    conversion.do_lsp_rename(method)
   else
     conversion.do_substitution(
       region.start_row - 1,
       region.start_col,
       region.end_row - 1,
       region.end_col + 1,
-      M.state.methods_by_key[M.state.current_method]
+      method
     )
   end
 end
@@ -121,7 +116,7 @@ end
 function M.line(case_desc)
   M.state.register = vim.v.register
   M.state.current_method = case_desc
-  vim.o.operatorfunc = "v:lua.require'" .. namespace .."'.operator_callback"
+  vim.o.operatorfunc = "v:lua.require'" .. constants.namespace .."'.operator_callback"
   local keys = vim.api.nvim_replace_termcodes(
     string.format("g@:normal! 0v%s$<cr>", vim.v.count > 0 and vim.v.count - 1 .. "j" or ""),
     true,
@@ -134,14 +129,14 @@ end
 function M.eol(case_desc)
   M.state.register = vim.v.register
   M.state.current_method = case_desc
-  vim.o.operatorfunc = "v:lua.require'" .. namespace .."'.operator_callback"
+  vim.o.operatorfunc = "v:lua.require'" .. constants.namespace .."'.operator_callback"
   vim.api.nvim_feedkeys("g@$", "i", false)
 end
 
 function M.visual(case_desc)
   M.state.register = vim.v.register
   M.state.current_method = case_desc
-  vim.o.operatorfunc = "v:lua.require'" .. namespace .. "'.operator_callback"
+  vim.o.operatorfunc = "v:lua.require'" .. constants.namespace .. "'.operator_callback"
   vim.api.nvim_feedkeys("g@`>", "i", false)
 end
 
