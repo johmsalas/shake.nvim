@@ -26,7 +26,6 @@ end
 
 function M.register_keybindings(method_table, keybindings)
   -- TODO: validate method_table
-  print(vim.inspect(method_table))
   M.state.methods_by_desc[method_table.desc] = method_table
   for _, feature in ipairs({ 'line', 'eol', 'visual', 'operator', 'lsp_rename' }) do
     if keybindings[feature] ~= nil then
@@ -53,14 +52,10 @@ end
 
 function M.register_replace_command(command, method_keys)
   -- TODO: validate command
+  M.state.methods_by_command[command] = {}
 
   for _, method in ipairs(method_keys) do
-    M.state.methods_by_command[command] = {}
-    if M.state.methods_by_desc[method] then
-      print(plugin_name + ': method ' + method + ' not registered')
-    else
-      table.insert(M.state.methods_by_command[command], method)
-    end
+    table.insert(M.state.methods_by_command[command], method)
   end
 
   vim.cmd(
@@ -77,12 +72,12 @@ function M.dispatcher(command, args)
   local cursor_pos = vim.fn.getpos(".")
 
   for _, method in ipairs(M.state.methods_by_command[command]) do
-    local transformed_source = method(source)
-    local transformed_dest = method(dest)
+    local transformed_source = method.apply(source)
+    local transformed_dest = method.apply(dest)
 
     local get_match = utils.get_list(utils.escape_string(transformed_source))
     for match in get_match do
-      M.replace_matches(match, transformed_source, transformed_dest, false)
+      conversion.replace_matches(match, transformed_source, transformed_dest, false)
     end
   end
 
