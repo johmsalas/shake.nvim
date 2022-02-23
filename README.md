@@ -35,19 +35,23 @@ A vim operator to change strings, supports:
 
 ### String case conversions
 
-| Trigger |      Case     | Example     |
-|---------|---------------|-------------|
-|    u    | Upper case    | LOREM IPSUM |
-|    l    | Lower case    | lorem ipsum |
-|    s    | Snake case    | lorem_ipsum |
-|    d    | Dash case     | lorem-ipsum |
-|    n    | Constant case | LOREM_IPSUM |
-|    o    | Dot case      | lorem.ipsum |
-|    c    | Camel case    | loremIpsum  |
-|    p    | Pascal case   | LoremIpsum  |
-|    t    | Title case    | Lorem Ipsum |
-|    f    | Path case     | lorem/ipsum |
-|    h    | Phrase case   | Lorem ipsum |
+|      Case     | Example     | Method                     |
+|---------------|-------------|----------------------------|
+| Upper case    | LOREM IPSUM | shake.api.to_constant_case |
+| Lower case    | lorem ipsum | shake.api.to_lower_case    |
+| Snake case    | lorem_ipsum | shake.api.to_snake_case    |
+| Dash case     | lorem-ipsum | shake.api.to_dash_case     |
+| Constant case | LOREM_IPSUM | shake.api.to_constant_case |
+| Dot case      | lorem.ipsum | shake.api.to_dot_case      |
+| Camel case    | loremIpsum  | shake.api.to_camel_case    |
+| Pascal case   | LoremIpsum  | shake.api.to_pascal_case   |
+| Title case    | Lorem Ipsum | shake.api.to_title_case    |
+| Path case     | lorem/ipsum | shake.api.to_path_case     |
+| Phrase case   | Lorem ipsum | shake.api.to_phrase_case   |
+
+## Integration with other plugins
+
+### Snip Lua
 
 ## Requirements
 
@@ -162,7 +166,7 @@ const SampleWizard = () => {
 
 **note:** The actual component will not be renamed yet because LSP renaming is not enabled for bulk replacement
 
-## Configuration (Optional)
+## Configuration
 
 ### Key binding
 
@@ -202,7 +206,21 @@ vim.api.nvim_set_keymap("n", "crs", "<cmd>lua require('shake').operator('snake_c
 vim.api.nvim_set_keymap("n", "cRs", "<cmd>lua require('shake').lsp_rename('snake_case')<cr>", { noremap = true })
 ```
 
-I don't know if there is a use case for this
+I don't know if there is a use case for manually setting up the keybinds
+
+## Bulk replacement
+
+Register a set of transformations under a given command. For the following example, let's assume the command `Subs`, and add several transforms
+
+```
+shake.register_replace_command('Subs', {
+  shake.api.to_dash_case,
+  shake.api.to_constant_case,
+  shake.api.to_camel_case,
+})
+```
+
+When the command `Subs` is invoked, it will try every variation of the source string transformed using the provided methods. And transform all the variations of the second string using the current conversion
 
 ## Contribution
 
