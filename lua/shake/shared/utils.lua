@@ -28,6 +28,7 @@ function utils.nvim_buf_get_text(buffer, start_row, start_col, end_row, end_col)
 end
 
 function utils.create_wrapped_method(desc, method)
+  -- print(vim.inspect(desc))
   return {
     desc = desc,
     apply = method
@@ -95,6 +96,53 @@ function utils.is_cursor_in_range(point, start_point, end_point)
 
     return is_inside_square
   end
+end
+
+function utils.untrim_str(str, trim_info)
+  return trim_info.start_trim .. str .. trim_info.end_trim
+end
+
+function utils.trim_str(str)
+  local chars = vim.split(str, "")
+  local startCount = 0
+  local endCount = 0
+
+  local isTrimmable = function(char)
+    return char == " "
+  end
+
+  for i = 1, #chars, 1 do
+    local char = chars[i]
+    if isTrimmable(char) then
+      startCount = startCount + 1
+    else
+      break
+    end
+  end
+
+  for i = #str, startCount + 1, -1 do
+    local char = chars[i]
+    if isTrimmable(char) then
+      endCount = endCount + 1
+    else
+      break
+    end
+  end
+
+  local trim_info = {
+    start_trim = string.sub(str, 1, startCount),
+    end_trim = string.sub(str, #chars - endCount + 1),
+  }
+
+  local trimmed_str = string.sub(
+    str,
+    startCount + 1,
+    #chars - endCount
+  ) or ''
+
+  print(vim.inspect(trimmed_str))
+
+  return trim_info, trimmed_str
 end
 
 function utils.get_list(str)

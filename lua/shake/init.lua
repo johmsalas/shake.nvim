@@ -20,7 +20,9 @@ local M = {
     to_path_case = c('to_path_case', stringcase.to_path_case),
   },
   utils = {
-    create_wrapped_method = c
+    create_wrapped_method = c,
+    trim_str = utils.trim_str,
+    untrim_str = utils.untrim_str,
   },
   sniplua = {
     from_snip_input = sniplua.from_snip_input,
