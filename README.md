@@ -183,6 +183,26 @@ const SampleWizard = () => {
 
 **note:** The actual component will not be renamed yet because LSP renaming is not enabled for bulk replacement
 
+### Custom LUA functions
+
+Instead of using only the builtin methods, you can follow this example to add your own
+
+```lua
+local shake = require('shake')
+local toggle_boolean = shake.utils.create_wrapped_method('toggle_boolean', function(str)
+  local trim_info, trimmed_str = shake.utils.trim_str(str)
+  local result
+  if trimmed_str == 'true' then
+    result = 'false'
+  elseif trimmed_str == 'false' then
+    result = 'true'
+  end
+  return shake.utils.untrim_str(result, trim_info)
+end)
+
+shake.register_keys(toggle_boolean, {nil, nil, 'df', 'df', nil})
+```
+
 ## Configuration
 
 ### Key binding
