@@ -88,7 +88,7 @@ use {
 ### Operator
 
 Suppose constant, camel and dash cases were setup using the following code
-```
+```lua
 -- keys order: 'line', 'eol', 'visual', 'operator', 'lsp_rename'
 shake.register_keys(shake.api.to_constant_case, {'crnn', 'crN', 'crn', 'crn', 'cRn'})
 shake.register_keys(shake.api.to_camel_case, {'crcc', 'crC', 'crc', 'crc', 'cRc'})
@@ -118,7 +118,7 @@ Hovering the text to change, use `cRn`
 
 Suppose constant, camel and dash cases were registered under the same command `Subs`. Take into account it is possible to setup multiple commands grouping different methods
 
-```
+```lua
 shake.register_replace_command('Subs', {
   shake.api.to_dash_case,
   shake.api.to_constant_case,
@@ -164,14 +164,14 @@ const SampleWizard = () => {
 
 Key bindings are setup when the method is registered
 
-```
+```lua
 -- keys order: 'line', 'eol', 'visual', 'operator', 'lsp_rename'
 shake.register_keys(shake.api.to_constant_case, {'crnn', 'crN', 'crn', 'crn', 'cRn'})
 ```
 
 The previous piece of code is a shortcut. The complete version, which is also more readable, is available:
 
-```
+```lua
 shake.register_keybindings(shake.api.to_constant_case, {
   line: 'crnn',
   eol: 'crN',
@@ -204,7 +204,7 @@ I don't know if there is a use case for manually setting up the keybinds
 
 Register a set of transformations under a given command. For the following example, let's assume the command `Subs`, and add several transforms
 
-```
+```lua
 shake.register_replace_command('Subs', {
   shake.api.to_dash_case,
   shake.api.to_constant_case,
