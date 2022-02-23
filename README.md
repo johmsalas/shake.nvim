@@ -1,13 +1,26 @@
-# Plug and change
+# Shake.nvim
 
-- WORK IN PROGRESS: Not ready to be used by the general public
-
-This project allows to convert Lua functions to vim operators to easily change pieces of texts. For example, given a function that converts to camelCase, with this plugin, it can be a vim operator that could be applied on objects (like aw, p, i"), undone, repeated, it could even be used on macros 
-
-This project also provides a set of basic `changes`:
- - String cass (see available string case conversions)
+Give super powers to string transformation LUA functions
 
 ## Features
+
+### Lua functions as vim operator
+
+Add your custom vim operators. Wish it was easy to add your LUA functions to repeatable vim operators? With `shake.nvim` you get:
+
+- Custom key binding to apply the function on:
+  - Current line
+  - Until end of line
+  - Given a vim object, like `aw` or `p`
+  - The current word, using **LSP rename**. Affecting the definition and its references
+
+### Bulk replacement
+
+Given two pieces of text A and B, it searches for all of A variants (in different string cases or custom functions), and replaces the text using B. It transforms and uses B, according to the target transformation. String cases are prioritized over custom Lua functions
+
+This project also provides a set of basic `changes`:
+ - String case (see available string case conversions)
+
 
 ### Operator
 
@@ -18,11 +31,7 @@ A vim operator to change strings, supports:
 - Change until end of line
 - Change word under cursor using LSP
 
-### Bulk replacement
-
-Given two pieces of text A and B, it searches for all of A variants (in different string cases or custom functions), and replaces the text using B. It transforms and uses B, according to the target transformation. String cases are prioritized over custom Lua functions
-
-## Available string changes
+## Built-in string transforms
 
 ### String case conversions
 
@@ -50,32 +59,80 @@ With packer.nvim
 
 ```
 use {
-  'johmsalas/nvim-lua-string-case',
+  'johmsalas/shake.nvim',
   config = function()
-    require('stringcase').setup{
-      operator_prefix = 'cr',
-      lsp_operator_prefix = 'cR',
-      search_replace_prefix = 'CR',
-    }
+    local shake = require('shake')
+
+    -- keys order: 'line', 'eol', 'visual', 'operator', 'lsp_rename'
+    shake.register_keys(shake.api.to_constant_case, {'crnn', 'crN', 'crn', 'crn', 'cRn'})
+    shake.register_keys(shake.api.to_camel_case, {'crcc', 'crC', 'crc', 'crc', 'cRc'})
+    shake.register_keys(shake.api.to_dash_case, {'crdd', 'crD', 'crd', 'crd', 'cRd'})
+
+    shake.register_replace_command('Subs', {
+      shake.api.to_upper_case,
+      shake.api.to_lower_case,
+      shake.api.to_snake_case,
+      shake.api.to_dash_case,
+      shake.api.to_constant_case,
+      shake.api.to_dot_case,
+      shake.api.to_phrase_case,
+      shake.api.to_camel_case,
+      shake.api.to_pascal_case,
+      shake.api.to_title_case,
+      shake.api.to_path_case,
+    })
+
+    lvim.builtin.which_key.mappings["r"]["s"] = { ":lua require('shake').replace_word_under_cursor('Subs')<cr>", "Replace word under cursor" }
   end
 }
 ```
 
 ## Usage
 
-### Motion
+### Operator
 
-The formula is `cr{prefix}{object}`. For instance, to convert the following 3 words to camel case, use `crc3w`. To repeat press `.`.
+Suppose constant, camel and dash cases were setup using the following code
+```
+-- keys order: 'line', 'eol', 'visual', 'operator', 'lsp_rename'
+shake.register_keys(shake.api.to_constant_case, {'crnn', 'crN', 'crn', 'crn', 'cRn'})
+shake.register_keys(shake.api.to_camel_case, {'crcc', 'crC', 'crc', 'crc', 'cRc'})
+shake.register_keys(shake.api.to_dash_case, {'crdd', 'crD', 'crd', 'crd', 'cRd'})
+```
 
-#### LSP
+The following examples are based on the shown configuration
 
-It is possible to change the case, not only of the word under the cursor, but its definition and usages via LSP. Hovering the text to change, instead of using `cr`, try `cR{case trigger}`. Sample: `cRc`
+**Convert whole line**
+
+`crnn`
+
+**Convert until end of line**
+
+`crN`
+
+**Convert visual selection**
+
+Given the current vim mode is `visual`, use `crn`
+
+**LSP**
+
+It is possible to change the case, not only of the word under the cursor, but its definition and usages via LSP. 
+Hovering the text to change, use `cRn`
 
 ### Bulk replacement
 
+Suppose constant, camel and dash cases were registered under the same command `Subs`. Take into account it is possible to setup multiple commands grouping different methods
+
+```
+shake.register_replace_command('Subs', {
+  shake.api.to_dash_case,
+  shake.api.to_constant_case,
+  shake.api.to_camel_case,
+})
+```
+
 Activate the search replace feature via command mode:
 
-`:CR/{string to be replaced}/{replacement string}` <enter>
+`:Subs/{string to be replaced}/{replacement string}` <enter>
 
 Let's say you want to replace the `StepOne` component name to `StudentsOnboarding` in the following piece of code:
 
@@ -103,41 +160,49 @@ const SampleWizard = () => {
 }
 ```
 
-**note:** The actual component will not be renamed yet because LSP renaming is still not enabled for bulk replacement
+**note:** The actual component will not be renamed yet because LSP renaming is not enabled for bulk replacement
 
 ## Configuration (Optional)
 
 ### Key binding
 
-The key binding prefixes are optional, if the prefixes are not provided, then there will be no default key mapping
+Key bindings are setup when the method is registered
 
 ```
-require('stringcase').setup{
-  operator_prefix = 'cr',
-  lsp_operator_prefix = 'cR',
-  search_replace_prefix = 'CR',
-}
+-- keys order: 'line', 'eol', 'visual', 'operator', 'lsp_rename'
+shake.register_keys(shake.api.to_constant_case, {'crnn', 'crN', 'crn', 'crn', 'cRn'})
 ```
 
-### Custom key binding
+The previous piece of code is a shortcut. The complete version, which is also more readable, is available:
 
-To manually provide the custom key mapping for every operation and case:
+```
+shake.register_keybindings(shake.api.to_constant_case, {
+  line: 'crnn',
+  eol: 'crN',
+  visual: 'crn',
+  operator: 'crn',
+  lsp_rename: 'cRn',
+})
+```
+
+To avoid registering a keybinding any of the values can be omitted or provided as nil
+
+### Manual key binds
+
+To manually provide the custom key mapping for every operation:
 
 ```lua
 -- Apply to the line
-vim.api.nvim_set_keymap("n", "crss", "<cmd>lua require('stringcase').line('snake_case')<cr>", { noremap = true })
+vim.api.nvim_set_keymap("n", "crss", "<cmd>lua require('shake').line('snake_case')<cr>", { noremap = true })
 -- Apply from the cursor to the end of line
-vim.api.nvim_set_keymap("n", "crS", "<cmd>lua require('stringcase').eol('snake_case')<cr>", { noremap = true })
+vim.api.nvim_set_keymap("n", "crS", "<cmd>lua require('shake').eol('snake_case')<cr>", { noremap = true })
 -- Wait until an object is provided
-vim.api.nvim_set_keymap("n", "crs", "<cmd>lua require('stringcase').operator('snake_case')<cr>", { noremap = true })
+vim.api.nvim_set_keymap("n", "crs", "<cmd>lua require('shake').operator('snake_case')<cr>", { noremap = true })
 -- Change word under cursor using LSP rename
-vim.api.nvim_set_keymap("n", "cRs", "<cmd>lua require('stringcase').lsp_rename('snake_case')<cr>", { noremap = true })
+vim.api.nvim_set_keymap("n", "cRs", "<cmd>lua require('shake').lsp_rename('snake_case')<cr>", { noremap = true })
 ```
 
-## Why another string case conversion plugin
-
-* Written in LUA. I wanted to add the features to tpope's vim-abolish, but vim script represents one more thing to learn, that only works inside vim ecosystem
-* LSP support. In programming, usually text is corelated. When a text changes, it should also change in definitions and references
+I don't know if there is a use case for this
 
 ## Contribution
 
@@ -162,7 +227,7 @@ nvim --headless --noplugin -u tests/minimal.vim -c "PlenaryBustedDirectory tests
 * [x] Provide triggering via commands
 * [ ] Bulk replacement: LSP support
 * [x] Bulk replacement: Apply only on visual selection
-* [ ] Bulk replacement: Hightlight replacable strings
+* [ ] Bulk replacement: Hightlight replicable strings
 * [ ] Bulk replacement: Interactive mode
 * [x] Add support for custom key mapping
 * [x] Add support for custom prefix on key mapping

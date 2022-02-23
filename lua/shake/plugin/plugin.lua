@@ -58,9 +58,42 @@ function M.register_replace_command(command, method_keys)
     table.insert(M.state.methods_by_command[command], method)
   end
 
-  vim.cmd(
-    "command! -nargs=1 -bang -bar -range=0 " .. command .. " :lua require('" .. constants.namespace .. "').dispatcher('" .. command .. "', <q-args>)"
+  vim.cmd([[
+    command! -nargs=1 -bang -bar -range=0 ]] .. command .. [[ :lua require('" .. constants.namespace .. "').dispatcher(
+      ']] .. command .. [[',
+      <q-args>
+    )
+  ]])
+end
+
+function M.clear_match(command_namespace)
+  if nil ~= M.state.match then
+    vim.fn.matchdelete(M.state.match)
+    M.state.match = nil
+  end
+
+  vim.cmd([[
+    augroup ]] .. command_namespace .. [[ClearMatch
+      autocmd!
+    augroup END
+  ]])
+end
+
+local function add_match(command, str)
+  local command_namespace = constants.namespace .. command
+  M.state.match = vim.fn.matchadd(
+    command_namespace,
+    vim.fn.escape(str, "\\"),
+    2
   )
+
+  vim.cmd([[
+    augroup ]] .. command_namespace .. [[ClearMatch
+      autocmd!
+      autocmd InsertEnter,WinLeave,BufLeave * lua require("]] .. constants.namespace .. [[").clear_match("]] .. command_namespace .. [[")
+      autocmd CursorMoved * lua require("]] .. constants.namespace .. [[").clear_match("]] .. command_namespace .. [[")
+    augroup END
+  ]])
 end
 
 function M.dispatcher(command, args)
@@ -74,6 +107,8 @@ function M.dispatcher(command, args)
   for _, method in ipairs(M.state.methods_by_command[command]) do
     local transformed_source = method.apply(source)
     local transformed_dest = method.apply(dest)
+
+    add_match(command, transformed_source)
 
     local get_match = utils.get_list(utils.escape_string(transformed_source))
     for match in get_match do
@@ -144,4 +179,15 @@ function M.lsp_rename(case_desc)
   vim.api.nvim_feedkeys("g@aW", "i", false)
 end
 
+
+function M.replace_word_under_cursor(command)
+  local current_word = vim.fn.expand('<cword>')
+  vim.api.nvim_feedkeys(":" .. command .. '/' .. current_word .. '/', "i", false)
+end
+
+function M.replace_selection()
+  print('TODO: pending implementation')
+end
+
 return M
+

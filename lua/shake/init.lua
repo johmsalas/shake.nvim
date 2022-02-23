@@ -1,6 +1,7 @@
 local stringcase = require('shake.conversions.stringcase')
 local plugin = require('shake.plugin.plugin')
 local utils = require('shake.shared.utils')
+local sniplua = require('shake.extensions.sniplua')
 
 local c = utils.create_wrapped_method
 
@@ -21,10 +22,16 @@ local M = {
   utils = {
     create_wrapped_method = c
   },
+  sniplua = {
+    from_snip_input = sniplua.from_snip_input,
+    flatten_multilines = sniplua.flatten_multilines,
+  },
   setup = plugin.setup,
   register_keybindings = plugin.register_keybindings,
   register_keys = plugin.register_keys,
   register_replace_command = plugin.register_replace_command,
+  replace_word_under_cursor = plugin.replace_word_under_cursor,
+  replace_selection = plugin.replace_selection,
   dispatcher = plugin.dispatcher,
   operator = plugin.operator,
   operator_callback = plugin.operator_callback,
@@ -32,6 +39,7 @@ local M = {
   eol = plugin.eol,
   visual = plugin.visual,
   lsp_rename = plugin.lsp_rename,
+  clear_match = plugin.clear_match,
 }
 
 return M
