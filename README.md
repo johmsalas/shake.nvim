@@ -6,7 +6,7 @@ Give super powers to string transformation LUA functions
 
 ### Lua functions as vim operator
 
-Add your custom vim operators. Wish it was easy to add your LUA functions to repeatable vim operators? With `shake.nvim` you get:
+Add LUA functions as custom repeatable vim operators. Using `shake.nvim` you get:
 
 - Custom key binding to apply the function on:
   - Current line
@@ -43,7 +43,32 @@ This project also provides a set of basic `changes`:
 
 ### Snip Lua
 
-[TODO]
+```lua
+local shake = require('shake')
+
+local to_dash_case = shake.api.to_dash_case
+local to_constant_case = shake.api.to_constant_case
+
+local flatten_multilines = shake.sniplua.flatten_multilines
+local from_snip_input = shake.sniplua.from_snip_input
+
+...
+
+typescript = {
+  s("eci", fmt("{}: '{}',", {i(1), f(from_snip_input(to_dash_case), {1})})),
+  s("ecp", fmt("{}: '{}',", {
+    d(
+      1,
+      from_snip_input(to_constant_case),
+      {1}
+    ),
+    f(
+      flatten_multilines(to_dash_case),
+      {1}
+    )
+  }))
+}
+```
 
 ## Setup
 
