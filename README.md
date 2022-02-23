@@ -21,7 +21,6 @@ Given two pieces of text A and B, it searches for all of A variants (in differen
 This project also provides a set of basic `changes`:
  - String case (see available string case conversions)
 
-
 ## Built-in string transforms
 
 ### String case conversions
@@ -44,15 +43,17 @@ This project also provides a set of basic `changes`:
 
 ### Snip Lua
 
-## Requirements
-
-* Run on [Neovim](https://neovim.io/) 0.6+
+[TODO]
 
 ## Setup
 
+### Requirements
+
+* Run on [Neovim](https://neovim.io/) 0.6+
+
 With packer.nvim
 
-```
+```lua
 use {
   'johmsalas/shake.nvim',
   config = function()
