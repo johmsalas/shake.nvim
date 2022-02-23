@@ -22,15 +22,6 @@ This project also provides a set of basic `changes`:
  - String case (see available string case conversions)
 
 
-### Operator
-
-A vim operator to change strings, supports:
-
-- Change provided object
-- Change whole line
-- Change until end of line
-- Change word under cursor using LSP
-
 ## Built-in string transforms
 
 ### String case conversions
