@@ -59,10 +59,7 @@ function M.register_replace_command(command, method_keys)
   end
 
   vim.cmd([[
-    command! -nargs=1 -bang -bar -range=0 ]] .. command .. [[ :lua require("]] .. constants.namespace .. [[").dispatcher(
-      "]] .. command .. [[",
-      <q-args>
-    )
+    command! -nargs=1 -bang -bar -range=0 ]] .. command .. [[ :lua require("]] .. constants.namespace .. [[").dispatcher( "]] .. command .. [[" ,<q-args>)
   ]])
 end
 
