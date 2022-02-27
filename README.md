@@ -24,6 +24,8 @@ In the following code, the method `toggle_boolean` changes the string from "true
 
 Let's register the method and assign its keybinding to `current_word`. This keybinding is repeatable (using `.`), usable inside macros and applies on a word object (`aw`) by default. We could also setup other keybindings to operate on the whole line, until end of line, a custom object or even the current word, but modifying it using Language Server Protocol (LSP)
 
+For the function `toggle_boolean`, features like LSP rename does not make a lot of sense, let's use only current word change
+
 ```lua
 local shake = require('shake')
 local toggle_boolean = shake.utils.create_wrapped_method('toggle_boolean', function(str)
@@ -39,6 +41,8 @@ end)
 
 shake.register_keybindings(toggle_boolean, {current_word = 'df'})
 ```
+
+![animation: Operator boolean toggle](screens/operator-boolean.gif)
 
 ### Example #2: Given a string represented with several variants, replace it with another string keeping the variant form
 
@@ -218,15 +222,15 @@ I don't know if there is a use case for manually setting up the keybinding, but 
 
   ```lua
   -- Apply to the line
-  vim.api.nvim_set_keymap("n", "crss", "<cmd>lua require('shake').line('snake_case')<cr>", { noremap = true })
+  vim.api.nvim_set_keymap("n", "crss", "<cmd>lua require('shake').line('snake_case')<cr>", { noremap = false })
   -- Apply from the cursor to the end of line
-  vim.api.nvim_set_keymap("n", "crS", "<cmd>lua require('shake').eol('snake_case')<cr>", { noremap = true })
+  vim.api.nvim_set_keymap("n", "crS", "<cmd>lua require('shake').eol('snake_case')<cr>", { noremap = false })
   -- Wait until an object is provided
-  vim.api.nvim_set_keymap("n", "crs", "<cmd>lua require('shake').operator('snake_case')<cr>", { noremap = true })
+  vim.api.nvim_set_keymap("n", "crs", "<cmd>lua require('shake').operator('snake_case')<cr>", { noremap = false })
   -- Change word under cursor using LSP rename
-  vim.api.nvim_set_keymap("n", "cRs", "<cmd>lua require('shake').lsp_rename('snake_case')<cr>", { noremap = true })
+  vim.api.nvim_set_keymap("n", "cRs", "<cmd>lua require('shake').lsp_rename('snake_case')<cr>", { noremap = false })
   -- Change word under cursor
-  vim.api.nvim_set_keymap("n", "cRs", "<cmd>lua require('shake').current_word('snake_case')<cr>", { noremap = true })
+  vim.api.nvim_set_keymap("n", "cRs", "<cmd>lua require('shake').current_word('snake_case')<cr>", { noremap = false })
   ```
 </details>
 
