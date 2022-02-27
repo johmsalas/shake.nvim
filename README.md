@@ -125,6 +125,13 @@ shake.register_keys(shake.api.to_camel_case, {'crcc', 'crC', 'crc', 'crc', 'cRc'
 shake.register_keys(shake.api.to_dash_case, {'crdd', 'crD', 'crd', 'crd', 'cRd'})
 ```
 
+Or using the shortcut, which is linewise less readable, but easier to read when many functions are registered in the same block
+
+```lua
+-- keys order: 'line', 'eol', 'visual', 'operator', 'lsp_rename'
+shake.register_keys(shake.api.to_constant_case, {'crnn', 'crN', 'crn', 'crn', 'cRn'})
+```
+
 The following examples are based on the shown configuration
 
 **Convert whole line**
@@ -148,7 +155,7 @@ Hovering the text to change, use `cRn`
 
 Given two pieces of text A and B, it searches for all of A variants (in different string cases or custom functions), and replaces the text using B. It transforms and uses B, according to the target transformation. String cases are prioritized over custom Lua functions
 
-Suppose constant, camel and dash cases were registered under the same command `Subs`. Take into account it is possible to setup multiple commands grouping different methods
+Suppose constant, camel and dash cases were registered under the same command `Subs`. Take into account it **is possible to setup multiple commands grouping different methods**
 
 ```lua
 shake.register_replace_command('Subs', {
@@ -189,65 +196,6 @@ const SampleWizard = () => {
 ```
 
 **note:** The actual component will not be renamed yet because LSP renaming is not enabled for bulk replacement
-
-## Configuration
-
-### Key binding
-
-Key bindings are setup when the method is registered
-
-```lua
-shake.register_keybindings(shake.api.to_constant_case, {
-  line: 'crnn',
-  eol: 'crN',
-  visual: 'crn',
-  operator: 'crn',
-  lsp_rename: 'cRn',
-})
-```
-
-Or using the shortcut, which is linewise less readable, but easier to read when many functions are registered in the same block
-
-```lua
--- keys order: 'line', 'eol', 'visual', 'operator', 'lsp_rename'
-shake.register_keys(shake.api.to_constant_case, {'crnn', 'crN', 'crn', 'crn', 'cRn'})
-```
-
-### Manual key binds
-
-I don't know if there is a use case for manually setting up the keybinding, but this would be a good start
-
-<details>
-  <summary>See details</summary>
-
-  ```lua
-  -- Apply to the line
-  vim.api.nvim_set_keymap("n", "crss", "<cmd>lua require('shake').line('snake_case')<cr>", { noremap = false })
-  -- Apply from the cursor to the end of line
-  vim.api.nvim_set_keymap("n", "crS", "<cmd>lua require('shake').eol('snake_case')<cr>", { noremap = false })
-  -- Wait until an object is provided
-  vim.api.nvim_set_keymap("n", "crs", "<cmd>lua require('shake').operator('snake_case')<cr>", { noremap = false })
-  -- Change word under cursor using LSP rename
-  vim.api.nvim_set_keymap("n", "cRs", "<cmd>lua require('shake').lsp_rename('snake_case')<cr>", { noremap = false })
-  -- Change word under cursor
-  vim.api.nvim_set_keymap("n", "cRs", "<cmd>lua require('shake').current_word('snake_case')<cr>", { noremap = false })
-  ```
-</details>
-
-
-## Bulk replacement
-
-Register a set of transformations under a given command. For the following example, let's assume the command `Subs`, and add several transforms
-
-```lua
-shake.register_replace_command('Subs', {
-  shake.api.to_dash_case,
-  shake.api.to_constant_case,
-  shake.api.to_camel_case,
-})
-```
-
-When the command `Subs` is invoked, it will try every variation of the source string transformed using the provided methods. And transform all the variations of the second string using the current conversion
 
 ## Built-in string transforms
 
