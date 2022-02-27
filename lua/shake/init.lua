@@ -38,6 +38,7 @@ local M = {
   operator = plugin.operator,
   operator_callback = plugin.operator_callback,
   line = plugin.line,
+  current_word = plugin.current_word,
   eol = plugin.eol,
   visual = plugin.visual,
   lsp_rename = plugin.lsp_rename,

@@ -27,7 +27,14 @@ end
 function M.register_keybindings(method_table, keybindings)
   -- TODO: validate method_table
   M.state.methods_by_desc[method_table.desc] = method_table
-  for _, feature in ipairs({ 'line', 'eol', 'visual', 'operator', 'lsp_rename' }) do
+  for _, feature in ipairs({
+    'line',
+    'eol',
+    'visual',
+    'operator',
+    'lsp_rename',
+    'current_word',
+  }) do
     if keybindings[feature] ~= nil then
       vim.api.nvim_set_keymap(
         "n",
@@ -47,6 +54,7 @@ function M.register_keys(method_table, keybindings)
     visual = keybindings[3],
     operator = keybindings[4],
     lsp_rename = keybindings[5],
+    current_word = keybindings[6],
   })
 end
 
@@ -169,8 +177,16 @@ end
 
 function M.lsp_rename(case_desc)
   M.state.register = vim.v.register
-  M.state.current_case = case_desc
+  M.state.current_method = case_desc
   M.state.change_type = constants.change_type.LSP_RENAME
+
+  vim.o.operatorfunc = "v:lua.require'" .. constants.namespace .. "'.operator_callback"
+  vim.api.nvim_feedkeys("g@aW", "i", false)
+end
+
+function M.current_word(case_desc)
+  M.state.register = vim.v.register
+  M.state.current_method = case_desc
 
   vim.o.operatorfunc = "v:lua.require'" .. constants.namespace .. "'.operator_callback"
   vim.api.nvim_feedkeys("g@aW", "i", false)

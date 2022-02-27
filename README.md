@@ -1,6 +1,6 @@
 # Shake.nvim
 
-Give super powers to string transformation LUA functions
+Given a LUA function for trasforming strings, this module allows to apply that functions in several way, like vim operators, apply the function on the current word, doing bulk replacement or in [LuaSnip](https://github.com/L3MON4D3/LuaSnip)pets
 
 ## Features
 
@@ -21,56 +21,54 @@ Given two pieces of text A and B, it searches for all of A variants (in differen
 This project also provides a set of basic `changes`:
  - String case (see available string case conversions)
 
-## Built-in string transforms
+## Usage examples
 
-### String case conversions
+### Example #1: Apply a method on a string object
 
-|      Case     | Example     | Method                     |
-|---------------|-------------|----------------------------|
-| Upper case    | LOREM IPSUM | shake.api.to_constant_case |
-| Lower case    | lorem ipsum | shake.api.to_lower_case    |
-| Snake case    | lorem_ipsum | shake.api.to_snake_case    |
-| Dash case     | lorem-ipsum | shake.api.to_dash_case     |
-| Constant case | LOREM_IPSUM | shake.api.to_constant_case |
-| Dot case      | lorem.ipsum | shake.api.to_dot_case      |
-| Camel case    | loremIpsum  | shake.api.to_camel_case    |
-| Pascal case   | LoremIpsum  | shake.api.to_pascal_case   |
-| Title case    | Lorem Ipsum | shake.api.to_title_case    |
-| Path case     | lorem/ipsum | shake.api.to_path_case     |
-| Phrase case   | Lorem ipsum | shake.api.to_phrase_case   |
+In the following code, the method `toggle_boolean` changes the string from "true" to "false" and the other way around
 
-## Integration with other plugins
-
-### Snip Lua
+Let's register the method and assign its keybinding to `current_word`. This keybinding is repeatable (using `.`), usable inside macros and applies on a word object (`aw`) by default. We could also setup other keybindings to operate on the whole line, until end of line, a custom object or even the current word, but modifying it using Language Server Protocol (LSP)
 
 ```lua
 local shake = require('shake')
+local toggle_boolean = shake.utils.create_wrapped_method('toggle_boolean', function(str)
+  local trim_info, trimmed_str = shake.utils.trim_str(str)
+  local result = trimmed_str
+  if trimmed_str == 'true' then
+    result = 'false'
+  elseif trimmed_str == 'false' then
+    result = 'true'
+  end
+  return shake.utils.untrim_str(result, trim_info)
+end)
 
-local to_dash_case = shake.api.to_dash_case
-local to_constant_case = shake.api.to_constant_case
-
-local flatten_multilines = shake.sniplua.flatten_multilines
-local from_snip_input = shake.sniplua.from_snip_input
-
-...
-
-typescript = {
-  s("eci", fmt("{}: '{}',", {i(1), f(from_snip_input(to_dash_case), {1})})),
-  s("ecp", fmt("{}: '{}',", {
-    d(
-      1,
-      from_snip_input(to_constant_case),
-      {1}
-    ),
-    f(
-      flatten_multilines(to_dash_case),
-      {1}
-    )
-  }))
-}
+shake.register_keybindings(toggle_boolean, {current_word = 'df'})
 ```
 
+### Example #2: Given a string represented with several variants, replace it with another string keeping the variant form
+
+Let's say you want to replace the `StepOne` component name to `StudentsOnboarding` in the following piece of code, run a bulk replacement custom command, like:
+
+```lua
+:Subs/step one/students onboarding<enter>
+```
+
+![animation: Bulk Replacement](screens/bulk-change-case.gif)
+
+Or even specify the visual block
+
+![animation: Bulk Replacement](screens/bulk-change-case-visual-block.gif)
+
+Consult the bulk replacement section for implementation details
+
+### Example 3: Using SnipLua integration
+
+The built-in methods can be used with other plugins, in the following example, a enum value is added (in TypeScript) in its both variants, camel case and constant case.
+
+There are some utility functions to ease such task
+
 ## Setup
+
 
 ### Requirements
 
@@ -259,6 +257,54 @@ shake.register_replace_command('Subs', {
 
 When the command `Subs` is invoked, it will try every variation of the source string transformed using the provided methods. And transform all the variations of the second string using the current conversion
 
+## Built-in string transforms
+
+### String case conversions
+
+|      Case     | Example     | Method                     |
+|---------------|-------------|----------------------------|
+| Upper case    | LOREM IPSUM | shake.api.to_constant_case |
+| Lower case    | lorem ipsum | shake.api.to_lower_case    |
+| Snake case    | lorem_ipsum | shake.api.to_snake_case    |
+| Dash case     | lorem-ipsum | shake.api.to_dash_case     |
+| Constant case | LOREM_IPSUM | shake.api.to_constant_case |
+| Dot case      | lorem.ipsum | shake.api.to_dot_case      |
+| Camel case    | loremIpsum  | shake.api.to_camel_case    |
+| Pascal case   | LoremIpsum  | shake.api.to_pascal_case   |
+| Title case    | Lorem Ipsum | shake.api.to_title_case    |
+| Path case     | lorem/ipsum | shake.api.to_path_case     |
+| Phrase case   | Lorem ipsum | shake.api.to_phrase_case   |
+
+## Integration with other plugins
+
+### Snip Lua
+
+```lua
+local shake = require('shake')
+
+local to_dash_case = shake.api.to_dash_case
+local to_constant_case = shake.api.to_constant_case
+
+local flatten_multilines = shake.sniplua.flatten_multilines
+local from_snip_input = shake.sniplua.from_snip_input
+
+...
+
+typescript = {
+  s("eci", fmt("{}: '{}',", {i(1), f(from_snip_input(to_dash_case), {1})})),
+  s("ecp", fmt("{}: '{}',", {
+    d(
+      1,
+      from_snip_input(to_constant_case),
+      {1}
+    ),
+    f(
+      flatten_multilines(to_dash_case),
+      {1}
+    )
+  }))
+}
+```
 ## Contribution
 
 ### Development
