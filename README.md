@@ -1,25 +1,20 @@
 # Shake.nvim
 
-Given a LUA function for trasforming strings, this module allows to apply that functions in several way, like vim operators, apply the function on the current word, doing bulk replacement or in [LuaSnip](https://github.com/L3MON4D3/LuaSnip)pets
+Given a **LUA** function for **trasforming strings**, this module allows to apply that functions in several ways, like vim operators, apply the function on the current word, doing bulk replacement or in [LuaSnip](https://github.com/L3MON4D3/LuaSnip)pets
 
 ## Features
 
-### Lua functions as vim operator
-
-Add LUA functions as custom repeatable vim operators. Using `shake.nvim` you get:
-
-- Custom key binding to apply the function on:
-  - Current line
-  - Until end of line
-  - Given a vim object, like `aw` or `p`
-  - The current word, using **LSP rename**. Affecting the definition and its references
-
-### Bulk replacement
-
-Given two pieces of text A and B, it searches for all of A variants (in different string cases or custom functions), and replaces the text using B. It transforms and uses B, according to the target transformation. String cases are prioritized over custom Lua functions
-
-This project also provides a set of basic `changes`:
- - String case (see available string case conversions)
+- [Functions as vim operator](#operator)
+  - Pending mode operator
+  - LSP replacement
+- [Bulk replacement](#bulk-replacement)
+  - Current buffer and visual selection
+- [Built-in functions](#built-in-string-transforms)
+  - String case: Camel, Pascal, Constant...
+- Integration with other plugins
+  - LSP
+  - [Snip Lua](#snip-lua)
+  - TODO: Telescope
 
 ## Usage examples
 
@@ -69,10 +64,9 @@ There are some utility functions to ease such task
 
 ## Setup
 
-
 ### Requirements
 
-* Run on [Neovim](https://neovim.io/) 0.6+
+* Tested on [Neovim](https://neovim.io/) 0.6+
 
 With packer.nvim
 
@@ -110,7 +104,16 @@ use {
 
 ### Operator
 
+Add LUA functions as custom repeatable vim operators. Using `shake.nvim` you get:
+
+- Custom key binding to apply the function on:
+  - Current line
+  - Until end of line
+  - Given a vim object, like `aw` or `p`
+  - The current word, using **LSP rename**. Affecting the definition and its references
+
 Suppose constant, camel and dash cases were setup using the following code
+
 ```lua
 -- keys order: 'line', 'eol', 'visual', 'operator', 'lsp_rename'
 shake.register_keys(shake.api.to_constant_case, {'crnn', 'crN', 'crn', 'crn', 'cRn'})
@@ -138,6 +141,8 @@ It is possible to change the case, not only of the word under the cursor, but it
 Hovering the text to change, use `cRn`
 
 ### Bulk replacement
+
+Given two pieces of text A and B, it searches for all of A variants (in different string cases or custom functions), and replaces the text using B. It transforms and uses B, according to the target transformation. String cases are prioritized over custom Lua functions
 
 Suppose constant, camel and dash cases were registered under the same command `Subs`. Take into account it is possible to setup multiple commands grouping different methods
 
@@ -181,38 +186,11 @@ const SampleWizard = () => {
 
 **note:** The actual component will not be renamed yet because LSP renaming is not enabled for bulk replacement
 
-### Custom LUA functions
-
-Instead of using only the builtin methods, you can follow this example to add your own
-
-```lua
-local shake = require('shake')
-local toggle_boolean = shake.utils.create_wrapped_method('toggle_boolean', function(str)
-  local trim_info, trimmed_str = shake.utils.trim_str(str)
-  local result
-  if trimmed_str == 'true' then
-    result = 'false'
-  elseif trimmed_str == 'false' then
-    result = 'true'
-  end
-  return shake.utils.untrim_str(result, trim_info)
-end)
-
-shake.register_keys(toggle_boolean, {nil, nil, 'df', 'df', nil})
-```
-
 ## Configuration
 
 ### Key binding
 
 Key bindings are setup when the method is registered
-
-```lua
--- keys order: 'line', 'eol', 'visual', 'operator', 'lsp_rename'
-shake.register_keys(shake.api.to_constant_case, {'crnn', 'crN', 'crn', 'crn', 'cRn'})
-```
-
-The previous piece of code is a shortcut. The complete version, which is also more readable, is available:
 
 ```lua
 shake.register_keybindings(shake.api.to_constant_case, {
@@ -224,24 +202,34 @@ shake.register_keybindings(shake.api.to_constant_case, {
 })
 ```
 
-To avoid registering a keybinding any of the values can be omitted or provided as nil
+Or using the shortcut, which is linewise less readable, but easier to read when many functions are registered in the same block
+
+```lua
+-- keys order: 'line', 'eol', 'visual', 'operator', 'lsp_rename'
+shake.register_keys(shake.api.to_constant_case, {'crnn', 'crN', 'crn', 'crn', 'cRn'})
+```
 
 ### Manual key binds
 
-To manually provide the custom key mapping for every operation:
+I don't know if there is a use case for manually setting up the keybinding, but this would be a good start
 
-```lua
--- Apply to the line
-vim.api.nvim_set_keymap("n", "crss", "<cmd>lua require('shake').line('snake_case')<cr>", { noremap = true })
--- Apply from the cursor to the end of line
-vim.api.nvim_set_keymap("n", "crS", "<cmd>lua require('shake').eol('snake_case')<cr>", { noremap = true })
--- Wait until an object is provided
-vim.api.nvim_set_keymap("n", "crs", "<cmd>lua require('shake').operator('snake_case')<cr>", { noremap = true })
--- Change word under cursor using LSP rename
-vim.api.nvim_set_keymap("n", "cRs", "<cmd>lua require('shake').lsp_rename('snake_case')<cr>", { noremap = true })
-```
+<details>
+  <summary>See details</summary>
 
-I don't know if there is a use case for manually setting up the keybinds
+  ```lua
+  -- Apply to the line
+  vim.api.nvim_set_keymap("n", "crss", "<cmd>lua require('shake').line('snake_case')<cr>", { noremap = true })
+  -- Apply from the cursor to the end of line
+  vim.api.nvim_set_keymap("n", "crS", "<cmd>lua require('shake').eol('snake_case')<cr>", { noremap = true })
+  -- Wait until an object is provided
+  vim.api.nvim_set_keymap("n", "crs", "<cmd>lua require('shake').operator('snake_case')<cr>", { noremap = true })
+  -- Change word under cursor using LSP rename
+  vim.api.nvim_set_keymap("n", "cRs", "<cmd>lua require('shake').lsp_rename('snake_case')<cr>", { noremap = true })
+  -- Change word under cursor
+  vim.api.nvim_set_keymap("n", "cRs", "<cmd>lua require('shake').current_word('snake_case')<cr>", { noremap = true })
+  ```
+</details>
+
 
 ## Bulk replacement
 
@@ -324,14 +312,9 @@ nvim --headless --noplugin -u tests/minimal.vim -c "PlenaryBustedDirectory tests
 
 * [WIP] Beta testing: Currently checking if the triggers make sense
 * [WIP] Beta testing: Getting feedback if the string case algorithm work as expected
-* [x] Add instructions for setup
-* [x] Provide triggering via commands
 * [ ] Bulk replacement: LSP support
-* [x] Bulk replacement: Apply only on visual selection
 * [ ] Bulk replacement: Hightlight replicable strings
 * [ ] Bulk replacement: Interactive mode
-* [x] Add support for custom key mapping
-* [x] Add support for custom prefix on key mapping
 * [ ] Support Telescope
 * [ ] Verify format of prefixes
 
