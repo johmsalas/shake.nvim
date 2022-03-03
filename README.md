@@ -3,7 +3,7 @@
 Given a **LUA** function for **trasforming strings**, this module allows to apply that functions in several ways, like vim operators, apply the function on the current word, doing bulk replacement or in [LuaSnip](https://github.com/L3MON4D3/LuaSnip)pets
 
 
-| :white_check_mark: **Looking for camel case, pascal case, title case conversion?** This plugin can also help |
+| :white_check_mark: Looking for camel case, pascal case, title case conversion? This plugin can also help |
 | --- |
 
 
