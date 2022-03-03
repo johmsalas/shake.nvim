@@ -18,7 +18,7 @@ Given a **LUA** function for **trasforming strings**, this module allows to appl
   - String case: Camel, Pascal, Constant...
 - Integration with other plugins
   - LSP
-  - [Snip Lua](#snip-lua)
+  - TODO: [Snip Lua](#snip-lua)
   - TODO: Telescope
 
 ## Usage examples
@@ -66,6 +66,8 @@ Or even specify the visual block
 Consult the bulk replacement section for implementation details
 
 ### Example 3: Using SnipLua integration
+
+[Work in progress]
 
 The built-in methods can be used with other plugins, in the following example, a enum value is added (in TypeScript) in its both variants, camel case and constant case.
 
@@ -243,6 +245,8 @@ const SampleWizard = () => {
 ## Integration with other plugins
 
 ### Snip Lua
+  
+**Not stable, work in progress**
 
 ```lua
 local shake = require('shake')
