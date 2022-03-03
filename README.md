@@ -2,6 +2,11 @@
 
 Given a **LUA** function for **trasforming strings**, this module allows to apply that functions in several ways, like vim operators, apply the function on the current word, doing bulk replacement or in [LuaSnip](https://github.com/L3MON4D3/LuaSnip)pets
 
+
+| :white_check_mark: **Looking for camel case, pascal case, title case conversion?** This plugin can also help |
+| --- |
+
+
 ## Features
 
 - [Functions as vim operator](#operator)
@@ -80,10 +85,30 @@ use {
   config = function()
     local shake = require('shake')
 
-    -- keys order: 'line', 'eol', 'visual', 'operator', 'lsp_rename'
-    shake.register_keys(shake.api.to_constant_case, {'crnn', 'crN', 'crn', 'crn', 'cRn'})
-    shake.register_keys(shake.api.to_camel_case, {'crcc', 'crC', 'crc', 'crc', 'cRc'})
-    shake.register_keys(shake.api.to_dash_case, {'crdd', 'crD', 'crd', 'crd', 'cRd'})
+    shake.register_keybindings(shake.api.to_constant_case, {
+      current_word = 'crn',
+      visual = 'crn',
+      operator = 'cron',
+      lsp_rename = 'crN',
+    })
+    shake.register_keybindings(shake.api.to_camel_case, {
+      current_word = 'crc',
+      visual = 'crc',
+      operator = 'croc',
+      lsp_rename = 'crC',
+    })
+    shake.register_keybindings(shake.api.to_dash_case, {
+      current_word = 'crd',
+      visual = 'crd',
+      operator = 'crod',
+      lsp_rename = 'crD',
+    })
+    shake.register_keybindings(shake.api.to_pascal_case, {
+      current_word = 'crp',
+      visual = 'crp',
+      operator = 'crop',
+      lsp_rename = 'crP',
+    })
 
     shake.register_replace_command('Subs', {
       shake.api.to_upper_case,
@@ -182,7 +207,7 @@ const SampleWizard = () => {
 }
 ```
 
-Executing `:CR/step one/students onboarding` will result into:
+Executing `:Subs/step one/students onboarding` will result into:
 
 ```javascript
 import StudentsOnboarding from './components/students-onboarding';
