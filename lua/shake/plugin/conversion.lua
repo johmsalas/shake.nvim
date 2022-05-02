@@ -22,10 +22,32 @@ function M.replace_matches(match, source, dest, try_lsp)
 end
 
 function M.do_substitution(start_row, start_col, end_row, end_col, method)
-  local lines = utils.nvim_buf_get_text(0, start_row, start_col, end_row, end_col)
+  local lines = utils.nvim_buf_get_text(
+    0,
+    start_row - 1,
+    start_col - 1,
+    end_row - 1,
+    end_col - 1
+  )
   local transformed = utils.map(lines, method)
+  -- vim.pretty_print(end_col)
 
-  vim.api.nvim_buf_set_text(0, start_row, start_col, end_row, end_col, transformed)
+  local cursor_pos = vim.fn.getpos(".")
+  vim.api.nvim_buf_set_text(0,
+    start_row - 1,
+    start_col - 1,
+    end_row - 1,
+    end_col - 1,
+    transformed
+  )
+  local new_cursor_pos = cursor_pos
+  if cursor_pos[1] ~= start_row or (
+    cursor_pos[2] < start_col
+  ) then
+    new_cursor_pos = { 0, start_row, start_col }
+  end
+  vim.pretty_print({cursor_pos, new_cursor_pos, start_row, start_col})
+  vim.fn.setpos(".", new_cursor_pos)
 end
 
 function M.do_lsp_rename(method)

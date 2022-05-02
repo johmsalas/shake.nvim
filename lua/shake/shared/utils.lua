@@ -28,7 +28,6 @@ function utils.nvim_buf_get_text(buffer, start_row, start_col, end_row, end_col)
 end
 
 function utils.create_wrapped_method(desc, method)
-  -- print(vim.inspect(desc))
   return {
     desc = desc,
     apply = method
@@ -102,13 +101,20 @@ function utils.untrim_str(str, trim_info)
   return trim_info.start_trim .. str .. trim_info.end_trim
 end
 
-function utils.trim_str(str)
+function utils.trim_str(str, _trimmable_chars)
   local chars = vim.split(str, "")
   local startCount = 0
   local endCount = 0
+  local trimmable_chars = _trimmable_chars or { ' ', '\'', '"', '{', '}', ',' }
+  local trimmable_chars_by_char = {}
+
+  for i = 1, #trimmable_chars, 1 do
+    local trim_char = trimmable_chars[i]
+    trimmable_chars_by_char[trim_char] = trim_char
+  end
 
   local isTrimmable = function(char)
-    return char == " "
+    return trimmable_chars_by_char[char]
   end
 
   for i = 1, #chars, 1 do
@@ -139,8 +145,6 @@ function utils.trim_str(str)
     startCount + 1,
     #chars - endCount
   ) or ''
-
-  print(vim.inspect(trimmed_str))
 
   return trim_info, trimmed_str
 end

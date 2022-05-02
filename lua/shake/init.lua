@@ -1,23 +1,24 @@
-local stringcase = require('shake.conversions.stringcase')
 local plugin = require('shake.plugin.plugin')
 local utils = require('shake.shared.utils')
 local sniplua = require('shake.extensions.sniplua')
+local presets = require('shake.plugin.presets')
+local api = require('shake.plugin.api')
 
 local c = utils.create_wrapped_method
 
 local M = {
   api = {
-    to_upper_case = c('to_upper_case', stringcase.to_upper_case),
-    to_lower_case = c('to_lower_case', stringcase.to_lower_case),
-    to_snake_case = c('to_snake_case', stringcase.to_snake_case),
-    to_dash_case = c('to_dash_case', stringcase.to_dash_case),
-    to_constant_case = c('to_constant_case', stringcase.to_constant_case),
-    to_dot_case = c('to_dot_case', stringcase.to_dot_case),
-    to_phrase_case = c('to_phrase_case', stringcase.to_phrase_case),
-    to_camel_case = c('to_camel_case', stringcase.to_camel_case),
-    to_pascal_case = c('to_pascal_case', stringcase.to_pascal_case),
-    to_title_case = c('to_title_case', stringcase.to_title_case),
-    to_path_case = c('to_path_case', stringcase.to_path_case),
+    to_upper_case = c('to_upper_case', api.to_upper_case),
+    to_lower_case = c('to_lower_case', api.to_lower_case),
+    to_snake_case = c('to_snake_case', api.to_snake_case),
+    to_dash_case = c('to_dash_case', api.to_dash_case),
+    to_constant_case = c('to_constant_case', api.to_constant_case),
+    to_dot_case = c('to_dot_case', api.to_dot_case),
+    to_phrase_case = c('to_phrase_case', api.to_phrase_case),
+    to_camel_case = c('to_camel_case', api.to_camel_case),
+    to_pascal_case = c('to_pascal_case', api.to_pascal_case),
+    to_title_case = c('to_title_case', api.to_title_case),
+    to_path_case = c('to_path_case', api.to_path_case),
   },
   utils = {
     create_wrapped_method = c,
@@ -27,6 +28,10 @@ local M = {
   sniplua = {
     from_snip_input = sniplua.from_snip_input,
     flatten_multilines = sniplua.flatten_multilines,
+  },
+  presets = {
+    stringcase = presets.stringcase,
+    toggle_boolean = presets.toggle_boolean,
   },
   setup = plugin.setup,
   register_keybindings = plugin.register_keybindings,

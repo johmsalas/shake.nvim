@@ -24,9 +24,11 @@ function M.setup(options)
   end
 end
 
-function M.register_keybindings(method_table, keybindings)
+function M.register_keybindings(method_table, keybindings, opts)
   -- TODO: validate method_table
   M.state.methods_by_desc[method_table.desc] = method_table
+  M.state.methods_by_desc[method_table.desc].opts = opts
+
   for _, feature in ipairs({
     'line',
     'eol',
@@ -132,18 +134,37 @@ function M.operator(method_key)
 end
 
 function M.operator_callback(vmode)
-  local region = utils.get_region(vmode)
-  local method = M.state.methods_by_desc[M.state.current_method].apply
+  local method = M.state.methods_by_desc[M.state.current_method]
+  local apply = method.apply
 
   if M.state.change_type == constants.change_type.LSP_RENAME then
-    conversion.do_lsp_rename(method)
+    conversion.do_lsp_rename(apply)
   else
+    local region = utils.get_region(vmode)
+
+    if M.state.change_type == constants.change_type.CURRENT_WORD then
+      local jumper = method.opts and method.opts.jumper or nil
+
+      if jumper ~= nil then
+        local lines = utils.nvim_buf_get_text(
+          0,
+          region.start_row,
+          region.start_col,
+          region.end_row,
+          region.end_col
+        )
+        region = jumper(lines, region)
+      end
+    end
+
+    -- vim.pretty_print(region)
+
     conversion.do_substitution(
-      region.start_row - 1,
+      region.start_row,
       region.start_col,
-      region.end_row - 1,
-      region.end_col + 1,
-      method
+      region.end_row,
+      region.end_col,
+      apply
     )
   end
 end
@@ -187,6 +208,7 @@ end
 function M.current_word(case_desc)
   M.state.register = vim.v.register
   M.state.current_method = case_desc
+  M.state.change_type = constants.change_type.CURRENT_WORD
 
   vim.o.operatorfunc = "v:lua.require'" .. constants.namespace .. "'.operator_callback"
   vim.api.nvim_feedkeys("g@aW", "i", false)
