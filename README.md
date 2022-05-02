@@ -47,6 +47,14 @@ end)
 shake.register_keybindings(toggle_boolean, {current_word = 'df'})
 ```
 
+This is a common case and there is a preset, one liner, that provides this functionality; but including look ahead and other conversion types
+
+```
+local shake = require('shake')
+shake.presets.stringcase({ prefix = 'cr' })
+shake.presets.toggle_boolean()
+```
+
 ![animation: Operator boolean toggle](screens/operator-boolean.gif)
 
 ### Example #2: Given a string represented with several variants, replace it with another string keeping the variant form
@@ -86,47 +94,8 @@ use {
   'johmsalas/shake.nvim',
   config = function()
     local shake = require('shake')
-
-    shake.register_keybindings(shake.api.to_constant_case, {
-      current_word = 'crn',
-      visual = 'crn',
-      operator = 'cron',
-      lsp_rename = 'crN',
-    })
-    shake.register_keybindings(shake.api.to_camel_case, {
-      current_word = 'crc',
-      visual = 'crc',
-      operator = 'croc',
-      lsp_rename = 'crC',
-    })
-    shake.register_keybindings(shake.api.to_dash_case, {
-      current_word = 'crd',
-      visual = 'crd',
-      operator = 'crod',
-      lsp_rename = 'crD',
-    })
-    shake.register_keybindings(shake.api.to_pascal_case, {
-      current_word = 'crp',
-      visual = 'crp',
-      operator = 'crop',
-      lsp_rename = 'crP',
-    })
-
-    shake.register_replace_command('Subs', {
-      shake.api.to_upper_case,
-      shake.api.to_lower_case,
-      shake.api.to_snake_case,
-      shake.api.to_dash_case,
-      shake.api.to_constant_case,
-      shake.api.to_dot_case,
-      shake.api.to_phrase_case,
-      shake.api.to_camel_case,
-      shake.api.to_pascal_case,
-      shake.api.to_title_case,
-      shake.api.to_path_case,
-    })
-
-    lvim.builtin.which_key.mappings["r"]["s"] = { ":lua require('shake').replace_word_under_cursor('Subs')<cr>", "Replace word under cursor" }
+    shake.presets.stringcase({ prefix = 'cr' })
+    shake.presets.toggle_boolean()
   end
 }
 ```
