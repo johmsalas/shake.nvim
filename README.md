@@ -13,7 +13,8 @@ Given a **LUA** function for **trasforming strings**, this module allows to appl
   - Pending mode operator
   - LSP replacement
 - [Bulk replacement](#bulk-replacement)
-  - Current buffer and visual selection
+  - Current buffer 
+  - Visual selection
 - [Built-in functions](#built-in-string-transforms)
   - String case: Camel, Pascal, Constant...
 - Integration with other plugins
@@ -23,7 +24,21 @@ Given a **LUA** function for **trasforming strings**, this module allows to appl
 
 ## Usage examples
 
-### Example #1: Apply a method on a string object
+### Basic examples
+
+#### String case conversion
+
+String case transforms out of the box with a single setup line:
+
+```
+shake.presets.stringcase({ prefix = 'cr' })
+```
+
+Find out the keybindings in the wiki
+
+### Advanced examples
+
+#### Example #1: Apply a method on a string object
 
 In the following code, the method `toggle_boolean` changes the string from "true" to "false" and the other way around
 
@@ -57,7 +72,7 @@ shake.presets.toggle_boolean()
 
 ![animation: Operator boolean toggle](screens/operator-boolean.gif)
 
-### Example #2: Given a string represented with several variants, replace it with another string keeping the variant form
+#### Example #2: Given a string represented with several variants, replace it with another string keeping the variant form
 
 Let's say you want to replace the `StepOne` component name to `StudentsOnboarding` in the following piece of code, run a bulk replacement custom command, like:
 
@@ -73,7 +88,7 @@ Or even specify the visual block
 
 Consult the bulk replacement section for implementation details
 
-### Example 3: Using SnipLua integration
+#### Example 3: Using SnipLua integration
 
 [Work in progress]
 
