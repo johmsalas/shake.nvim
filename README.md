@@ -1,9 +1,11 @@
 # Shake.nvim
 
+WARNING: Shake.nvim currently holds text casing functions. All these functions will be moved out to https://github.com/johmsalas/text-case.nvim. And Shake.nvim will be the core for creating vim operators for LUA functions. That way, text-case.nvim will actually use behind the scenes shake.nvim. And Shake.nvim will be for more advance use
+
 Given a **LUA** function for **trasforming strings**, this module allows to apply that functions in several ways, like vim operators, apply the function on the current word, doing bulk replacement or in [LuaSnip](https://github.com/L3MON4D3/LuaSnip)pets
 
 
-| :white_check_mark: Looking for camel case, pascal case, title case conversion? This plugin can also help |
+| :white_check_mark: Looking for camel case, pascal case, title case conversion? Checkout: https://github.com/johmsalas/text-case.nvim
 | --- |
 
 
@@ -303,5 +305,3 @@ nvim --headless --noplugin -u tests/minimal.vim -c "PlenaryBustedDirectory tests
 
 Inspired by [substitute.lua](https://github.com/gbprod/substitute.nvim)
 
-Alternatives
-[vim-abolish by tpope](https://github.com/tpope/vim-abolish)
