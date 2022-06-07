@@ -2,6 +2,8 @@
 
 WARNING: Shake.nvim currently holds text casing functions. All these functions will be moved out to https://github.com/johmsalas/text-case.nvim. And Shake.nvim will be the core for creating vim operators for LUA functions. That way, text-case.nvim will actually use behind the scenes shake.nvim. And Shake.nvim will be for more advance use
 
+WARNING 2: This plugin has not been released. API might change. So far, there is a plan to remove the String Casing API and keybindings as stated above
+
 Given a **LUA** function for **trasforming strings**, this module allows to apply that functions in several ways, like vim operators, apply the function on the current word, doing bulk replacement or in [LuaSnip](https://github.com/L3MON4D3/LuaSnip)pets
 
 
